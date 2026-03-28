@@ -17,7 +17,14 @@ No test runner is configured.
 
 Single-page React app with no external state management, routing, or UI libraries. Vanilla CSS for styling.
 
-**All application logic lives in `src/App.jsx`** — one monolithic component using `useState` hooks. There are no sub-components.
+### Component structure
+
+| File | Responsibility |
+|------|---------------|
+| `src/App.jsx` | Root component. Owns `transactions` state. Passes data and callbacks to children. |
+| `src/Summary.jsx` | Receives `transactions`, computes and displays total income, expenses, and balance. |
+| `src/TransactionForm.jsx` | Owns its own form state (`description`, `amount`, `type`, `category`). Calls `onAdd(transaction)` prop on submit. |
+| `src/TransactionList.jsx` | Receives `transactions`, owns filter state (`filterType`, `filterCategory`), renders filtered table. |
 
 ### State shape
 
@@ -25,22 +32,22 @@ Single-page React app with no external state management, routing, or UI librarie
 transactions: [{
   id: number,
   description: string,
-  amount: string,      // stored as string, not number
+  amount: number,
   type: "income" | "expense",
   category: string,    // food | housing | utilities | transport | entertainment | salary | other
   date: string         // ISO format
 }]
 ```
 
-Form fields (`description`, `amount`, `type`, `category`) and filters (`filterType`, `filterCategory`) are also top-level state.
-
 ### Data flow
 
-User input → form state → `handleSubmit` appends to `transactions` array → derived totals computed inline during render → filtered view via `filteredTransactions`.
+- `App` holds the `transactions` array and passes it to all three child components.
+- `TransactionForm` manages its own controlled inputs; on submit it calls `onAdd` which appends to `transactions` in `App`.
+- `TransactionList` filters the received `transactions` locally using its own filter state.
+- `Summary` derives totals directly from the `transactions` prop on each render.
 
-### Known limitations in the starter code
+### Known limitations
 
-- Amounts are stored as strings; numeric calculations may behave unexpectedly
 - No data persistence (resets on page refresh)
 - Delete button CSS exists (`.delete-btn`) but the feature is not implemented
 - 8 hardcoded sample transactions are seeded in initial state
